@@ -1,0 +1,59 @@
+---
+title: "Survey Report"
+author: "Aaron H. Green"
+format: html
+execute: 
+  echo: false
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+# Loading packages
+library(tidyverse)
+library(gt)
+```
+
+```{r}
+# Soure function allows you to run another script and so with the code below we can run the codes in data_workflow_optim.R
+
+# This helps you to have updated data incase of changes to the rds files e.g. incase you get a new csv file for 2027 
+# we dont have to run it now because we know that our data is already lean and we dont have any additions. 
+
+#source("data_cleaning_script.R")
+
+```
+
+```{r}
+## loading the earlier saved rds files for analysis
+demographics_data <- read_rds("data/demographics_data.rds")
+favorite_parts_data <- read_rds("data/favorite_parts_data.rds")
+pre_post_data <- read_rds("data/pre_post_data.rds")
+satisfaction_data <- read_rds("data/satisfaction_data.rds")
+```
+
+# Introduction
+
+We did a survey after our trainings. Here is a table showing he demographics of participants.
+
+```{r}
+# create an interactive table
+demographics_data %>% 
+  gt() %>% 
+  opt_interactive()
+  
+```
+
+# Findings
+
+```{r}
+# Say you want to show favorite parts data by city. Problem is that we dont have variable city in the favorite parts data but we have it in the demographics data. The solution is to join demographics data with favorite parts data by respondent id and survey year since both both variables are common to bith datasets.That helps us show the most popular favorite part by city
+favorite_parts_data %>% 
+  left_join(demographics_data,
+            join_by(respondent_id, survey_year)) %>% 
+  count(city, favorite_part) %>% 
+  gt() %>% 
+  opt_interactive()
+```
